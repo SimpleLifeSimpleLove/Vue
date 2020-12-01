@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns: xmlns:>
+<head>
+    <meta charset="UTF-8">
+    <title>组件</title>
+</head>
+<body>
+
+
+<!-- view层 -->
+<div id="app">
+
+    <!-- 组件，wxx会作为实参传递给组件，组件内通过props属性接收 -->
+    <!--
+        v-for="item in items" : 遍历 Vue 实例中定义的名为 items 的数组，并创建同等数量的组件
+        v-bind:wxx="item" : 将遍历到的 item 项绑定到组件中 props 定义的名为 wxx 属性上；
+            =号左边的 wxx 为props定义的属性名，右边为 item in items 中遍历到的item项的值
+    -->
+    <my-component-li v-for="item in items" v-bind:wxx="item"></my-component-li>
+
+</div>
+
+
+<!-- 导入Vue.js -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue.min.js"></script>
+<script>
+
+    // 定义一个组件，其中组件名称不能有大写，否则浏览器不显示
+    Vue.component("my-component-li", {
+        props: ['wxx'],  // 相当于形参，需要从外面绑定自动传入
+        template: '<li>{{wxx}}</li>'
+    });
+
+    var vm = new Vue({
+        el: "#app",
+        // model : 数据
+        data: {
+            items: ["Java", "Linux", "前端"]
+        }
+    })
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
