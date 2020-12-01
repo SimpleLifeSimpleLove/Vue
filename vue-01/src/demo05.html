@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns: xmlns:>
+<head>
+    <meta charset="UTF-8">
+    <title>双向绑定v-model</title>
+</head>
+<body>
+
+
+<!-- view层 -->
+<div id="app">
+
+    input输入文本：<input type="text" v-model="message1"> {{message1}}
+    <br>
+    <hr>
+
+    textarea输入文本：<textarea name="" id="" cols="20" rows="5" v-model="message2"></textarea> {{message2}}
+    <br>
+    <hr>
+
+    性别：
+    <input type="radio" name="sex" value="男" v-model="message3"> 男
+    <input type="radio" name="sex" value="女" v-model="message3"> 女
+    <p>选中了谁：{{message3}}</p>
+    <br>
+    <hr>
+
+    下拉框：
+    <select v-model="message4">
+        <option value="" disabled>--请选择--</option>
+        <option>A</option>
+        <option>B</option>
+        <option>C</option>
+    </select>
+    <span>选中了：{{message4}}</span>
+
+</div>
+
+
+<!-- 导入Vue.js -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue.min.js"></script>
+<script>
+    var vm = new Vue({
+        el: "#app",
+        // model : 数据
+        data: {
+            message1: "",
+            message2: "",
+            message3: "",
+            message4: "",
+        }
+    })
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
