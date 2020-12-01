@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns: xmlns:>
+<head>
+    <meta charset="UTF-8">
+    <title>Axios</title>
+
+    <!-- v-clock：解决闪烁问题 -->
+    <style>
+        [v-clock]{
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+
+<!-- view层 -->
+<div id="app" v-clock>
+
+    <div>{{info.name}}</div>
+    <div>{{info.address.street}}</div>
+    <a v-bind:href="info.url">点我跳转</a>
+
+</div>
+
+
+<!-- 导入Vue.js -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue.min.js"></script>
+<!-- 导入Axios -->
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+    var vm = new Vue({
+        el: "#app",
+        data() {
+            return {
+                // 请求返回参数格式必须和请求到的json字符串一样，但是可以不全部接收
+                info: {
+                    name: null,
+                    address: {
+                        street: null,
+                        city: null,
+                        country: null
+                    }
+                }
+            }
+        },
+        mounted() {  // 钩子函数，链式编程，ES新特性
+            axios.get("../data/data.json").then(response => (  // then相当于请求的回调函数
+                this.info = response.data  // 将请求的数据赋值给info
+            ));
+        }
+    })
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
