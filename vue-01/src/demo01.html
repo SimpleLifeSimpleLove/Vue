@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
@@ -9,7 +9,11 @@
 
 <!-- view层 -->
 <div id="app">
-    {{message}}
+    {{message}} <br>
+
+    <span v-bind:title="message">
+        鼠标悬停几秒钟查看动态绑定信息
+    </span>
 </div>
 
 
@@ -50,7 +54,7 @@ Model :
 ViewModel :
     * ViewModel 是由前端开发人员组织生成和维护的视图数据层。在这一层，前端开发者对从后端获取到的 Model 数据进行转换处理，
     做二次封装，以生成符合 View 层使用预期的视图数据模型。
-    * 需要注意的是 ViewModel 所封装出来的数据模型包括视图的状态和行为两部分，而 Model 层的数据模型只是包含状态状态的。
+    * 需要注意的是 ViewModel 所封装出来的数据模型包括视图的状态和行为两部分，而 Model 层的数据模型只是包含状态的。
         比如页面的这一块展示什么，那一块展示什么这些都属于视图状态(展示)
         页面加载进来发生什么，点击这一块发生什么，这一块滚动时发生什么都属于视图行为(交互)
     * 视图状态和行为都封装在 ViewModel 里。这样的封装使得 ViewModel 可以完整描述 View 层。由于实现了双向绑定，ViewModel
@@ -74,7 +78,6 @@ Vue :
         * 至此，我们就明白了，Vue.js 就是一个 MVVM 的实现者，它的核心就是实现了 DOM监听 与 数据绑定。
 
 -->
-
 
 
 <!--
