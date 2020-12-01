@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns: xmlns:>
+<head>
+    <meta charset="UTF-8">
+    <title>演示事件v-on</title>
+</head>
+<body>
+
+
+<!-- view层 -->
+<div id="app">
+    <!-- jQuery事件：https://www.w3school.com.cn/jquery/jquery_ref_events.asp -->
+    <!-- 这里我们使用了 v-on 绑定 click 事件，并指定了名为sayHi的方法 -->
+    <button v-on:click="sayHi">click me</button>
+    <button @click="sayHi">click me</button>
+</div>
+
+
+<!-- 导入Vue.js -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue.min.js"></script>
+<script>
+    var vm = new Vue({
+        el: "#app",
+        // model : 数据
+        data: {
+            message: "Java"
+        },
+        methods: {  // 方法必须定义在 Vue 的 methods 对象中，v-on：事件，可以用@代替
+            sayHi: function () {
+                // this指向当前的 Vue 实例
+                alert(this.message);
+            }
+        }
+    })
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
