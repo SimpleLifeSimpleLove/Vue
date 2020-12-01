@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns: xmlns:>
+<head>
+    <meta charset="UTF-8">
+    <title>计算属性</title>
+
+    <!-- v-clock：解决闪烁问题 -->
+    <style>
+        [v-clock]{
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+
+<!-- view层 -->
+<div id="app" v-clock>
+
+    <p>currentTime1 : {{currentTime1()}}</p>
+    <p>currentTime2 : {{currentTime2}}</p>
+
+</div>
+
+
+<!-- 导入Vue.js -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue.min.js"></script>
+<!-- 导入Axios -->
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+    var vm = new Vue({
+        el: "#app",
+        data: {
+            message: "Hello Vue!"
+        },
+        methods: {
+            currentTime1: function () {
+                return Date.now();  // 返回时间戳
+            }
+        },
+        computed: {  // 计算属性
+            currentTime2: function () {
+                this.message;  // 加上这句话如果message改变后会导致在浏览器输入 vm.currentTime2会刷新"缓存"，不加的话不会"刷新"
+                return Date.now();  // 返回时间戳
+            }
+        }
+    })
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
