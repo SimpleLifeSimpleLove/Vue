@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns: xmlns:>
+<head>
+    <meta charset="UTF-8">
+    <title>自定义事件</title>
+
+    <!-- v-clock：解决闪烁问题 -->
+    <style>
+        [v-clock] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+
+<!-- view层 -->
+<div id="app" v-clock>
+
+    <todo>
+        <!--
+            通过自定义事件，实现插槽中操纵Vue实例(vm)中内容
+            通过slot="todo-title" 确定 todo-title插入到todo的位置
+            : 是 v-bind: 的简写
+
+            :para_title="title"     para_title是组件里的参数，title是vm中的数据
+        -->
+        <todo-title slot="todo-title" :para_title="title"></todo-title>
+        <!--
+            todoItems是vm中的数据，para_item是组件中的参数
+            @my_event_remove="removeItems(index)"
+                my_event_remove : 用户自定义的事件
+                removeItems(index) : 调用vm中的removeItems
+        -->
+        <todo-items slot="todo-items" v-for="(item, index) in todoItems"
+                    :para_item="item" :para_index="index" @my_event="removeItems(index)"></todo-items>
+    </todo>
+
+</div>
+
+
+<!-- 导入Vue.js -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue.min.js"></script>
+<!-- 导入Axios -->
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+
+    // slot : 插槽
+    // 通过name绑定其他组件插入的位置
+    Vue.component("todo", {
+        template: '<div>\
+                        <slot name="todo-title"></slot>\
+                        <ul>\
+                            <slot name="todo-items"></slot>\
+                        </ul>\
+                   </div>\
+        '
+    });
+    Vue.component("todo-title", {
+        props: ['para_title'],  // 参数也不能有大写
+        template: '<div>{{para_title}}</div>'
+    });
+    Vue.component("todo-items", {
+        props: ['para_item', 'para_index'],
+        // 用户点击"删除"按钮，会执行 remove 方法，自动获取当前数据的索引para_index
+        // remove 方法中的 my_event(自定义事件) 与  @my_event="removeItems(index)"绑定
+        // 然后会调用vm中的 removeItems 删除数据，将索引 para_index 传入其中删除数据
+        template: '<li>{{para_index + 1}}.{{para_item}} <button @click="remove">删除</button></li>',
+        methods: {
+            remove: function (para_index) {
+                // this.$emit 自定义事件分发
+                this.$emit('my_event', para_index);
+            }
+        }
+    });
+
+    var vm = new Vue({
+        el: "#app",
+        data: {
+            title: "待办事项",
+            todoItems: ["Java", "Linux", "前端"]
+        },
+        methods: {
+            // 该方法可以被模板中的自定义事件触发
+            removeItems: function (index) {
+                console.log(index);
+                console.log("删除 " + this.todoItems[index] + " 成功");
+                // splice() 方法从数组中添加/删除项目，然后返回被删除的项目，其中 index 为开始删除的索引，1为删除的数目
+                this.todoItems.splice(index, 1);
+            }
+        }
+    })
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+

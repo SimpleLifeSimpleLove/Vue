@@ -64,7 +64,7 @@
 
 
 
-## Vue基础语法
+## Vue: 基础语法
 
 * v-if
 
@@ -307,3 +307,122 @@ var vm = new Vue({
 ```
 
 说明：我们的 todo-title和todo-items 组件被分发到 todo 的组件  todo-title和todo-items 插槽中。
+
+
+
+## Vue: 自定义事件
+
+### 例子：
+
+通过上面代码不难发现，数据项在Vue的实例中，但我们的目的是删除操作要在组件中完成，那么组件如何能删除Vue实例中的数据呢？此时就涉及到参数传递与事件分发了，Vue为我们提供了自定义事件的功能很好的帮助我们解决了这个问题；使用this.$emit('自定义事件名', 参数)，操作过程如下：
+
+1-在vue的实例中，增加了methods对象并定义了一个名为 removeItems 的方法
+
+```html
+<script>
+    var vm = new Vue({
+        el: "#app",
+        data: {
+            title: "待办事项",
+            todoItems: ["Java", "Linux", "前端"]
+        },
+        methods: {
+            // 该方法可以被模板中的自定义事件触发
+            removeItems: function (index) {
+                console.log("删除 " + this.todoItems[index] + " 成功");
+                // splice() 方法从数组中添加/删除项目，然后返回被删除的项目，其中 index 为开始删除的索引，1为删除的数目
+                this.todoItems.splice(index, 1);
+            }
+        }
+    })
+</script>
+```
+
+2-修改todo-items待办内容组件的代码，增加一个删除按钮，并绑定事件！
+
+```html
+<script>
+	Vue.component("todo-items", {
+        props: ['para_item', 'para_index'],
+        // 用户点击"删除"按钮，会执行 remove 方法，自动获取当前数据的索引para_index
+        // remove 方法中的 my_event(自定义事件) 与  @my_event="removeItems(index)"绑定
+        // 然后会调用vm中的 removeItems 删除数据，将索引 para_index 传入其中删除数据
+        template: '<li>{{para_index + 1}}.{{para_item}} <button @click="remove">删除</button></li>',
+        methods: {
+            remove: function (para_index) {
+                // this.$emit 自定义事件分发
+                this.$emit('my_event', para_index);
+            }
+        }
+    });
+</script>
+```
+
+3-修改todo-items待办内容组件的Html代码，增加一个自定义事件，比如叫做 my_event，可以和组件的方法绑定，然后绑定到vue的方法中！
+
+```html
+<!-- view层 -->
+<div id="app" v-clock>
+
+    <todo>
+        <!--
+            通过自定义事件，实现插槽中操纵Vue实例(vm)中内容
+            通过slot="todo-title" 确定 todo-title插入到todo的位置
+            : 是 v-bind: 的简写
+
+            :para_title="title"     para_title是组件里的参数，title是vm中的数据
+        -->
+        <todo-title slot="todo-title" :para_title="title"></todo-title>
+        <!--
+            todoItems是vm中的数据，para_item是组件中的参数
+            @my_event_remove="removeItems(index)"
+                my_event_remove : 用户自定义的事件
+                removeItems(index) : 调用vm中的removeItems
+        -->
+        <todo-items slot="todo-items" v-for="(item, index) in todoItems"
+                    :para_item="item" :para_index="index" @my_event="removeItems(index)"></todo-items>
+    </todo>
+    
+</div>
+```
+
+
+
+### 逻辑理解
+
+![image-20201204221523900](README.assets/image-20201204221523900.png)
+
+
+
+
+
+## Vue 入门小节
+
+* 核心：数据驱动，组件化
+
+* 优点：借鉴了AngulaJS的模块化开发 和 React 的虚拟Dom，虚拟Dom就是把Dom操作放到内存中执行；
+* 常用的属性：
+  * v-if
+  * v-else-if
+  * v-else
+  * v-for
+  * v-on 绑定事件，简写@
+  * v-model 数据的双向绑定
+  * v-bind 给组件绑定参数
+
+* 组件化
+
+  * 组合组件 slot 插槽
+  * 组件内部绑定事件需要使用到this.$emit("事件名", 参数)
+  * 计算属性是特色，缓存计算数据
+
+* 遵循SoC关注度分离原则，Vue是纯粹的视图框架，比如Ajax之类的通信功能，为了解决通信问题，我们需要使用Axios框架做异步通信。
+
+* 说明：
+
+  Vue的开发都是基于NodeJS，实际开发采用 vue-cli脚手架开发，Vue-router路由，vuex做状态管理；Vue UI，界面我们一般使用ElementUI(饿了么出品)，或者ICE(阿里巴巴出品！)来快速搭建前端项目
+
+  官网：
+
+  * https://element.eleme.cn/1.4/#/zh-CN
+  * https://ice.work
