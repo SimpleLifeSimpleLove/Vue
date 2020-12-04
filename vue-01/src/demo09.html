@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns: xmlns:>
+<head>
+    <meta charset="UTF-8">
+    <title>插槽</title>
+
+    <!-- v-clock：解决闪烁问题 -->
+    <style>
+        [v-clock] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+
+<!-- view层 -->
+<div id="app" v-clock>
+
+    <todo>
+        <!--
+            通过slot="todo-title" 确定 todo-title插入到todo的位置
+            : 是 v-bind: 的简写
+
+            :para_title="title"     para_title是组件里的参数，title是vm中的数据
+        -->
+        <todo-title slot="todo-title" :para_title="title"></todo-title>
+        <!-- todoItems是vm中的数据，para_item是组件中的参数 -->
+        <todo-items slot="todo-items" v-for="(item, index) in todoItems" :para_item="item" :para_index="index"></todo-items>
+    </todo>
+
+</div>
+
+
+<!-- 导入Vue.js -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue.min.js"></script>
+<!-- 导入Axios -->
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+
+    // slot : 插槽
+    // 通过name绑定其他组件插入的位置
+    Vue.component("todo", {
+        template: '<div>\
+                        <slot name="todo-title"></slot>\
+                        <ul>\
+                            <slot name="todo-items"></slot>\
+                        </ul>\
+                   </div>\
+        '
+    });
+    Vue.component("todo-title", {
+        props: ['para_title'],  // 参数也不能有大写
+        template: '<div>{{para_title}}</div>'
+    });
+    Vue.component("todo-items", {
+        props: ['para_item', 'para_index'],
+        template: '<li>{{para_index + 1}}.{{para_item}}</li>'
+    });
+
+    var vm = new Vue({
+        el: "#app",
+        data: {
+            title: "待办事项",
+            todoItems: ["Java", "Linux", "前端"]
+        }
+    })
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+

@@ -210,3 +210,100 @@
 * 结论：
 
   调用方法时，每次都需要进行计算，既然有计算过程必然会产生开销，那如果这个结果是不经常变化的呢？此时就可以考虑将这个结果缓存起来，采用计算属性可以很方便的做到这一点，**计算属性的主要特性就是为了将不经常变化的结果进行缓存，以节约我们的系统开销**。
+
+
+
+## Vue: 内容分发
+
+在Vue.js中，我们使用<slot\>元素作为承载分发的出口，作者将其称为插槽，可以应用在组合组件的场景中。
+
+### 测试
+
+比如准备制作一个代办事项(todo)，该组件由待办标题(todo-title)和待办内容(todo-items)组成，但是这三个组件又是相互独立的，该如何操作呢？
+
+请参照
+
+**第一步：定义一个待办事项的组件**
+
+```html
+<!-- view层 -->
+<div id="app" v-clock>
+    <todo></todo>
+</div>
+
+Vue.component("todo", {
+        template: '<div>\
+                        <slot>待办事项</slot>\
+                        <ul>\
+                            <slot>Java</slot>\
+                        </ul>\
+                   </div>\
+        '
+});
+```
+
+
+
+**第二步：我们需要让待办事项的标题和值实现动态绑定，怎么做呢？我们可以留出一个插槽！**
+
+1-将上面的代码留出一个插槽，即slot
+
+```html
+Vue.component("todo", {
+        template: '<div>\
+                        <slot name="todo-title"></slot>\
+                        <ul>\
+                            <slot name="todo-items"></slot>\
+                        </ul>\
+                   </div>\
+        '
+});
+```
+
+2-定义一个名为todo-title的待办标题组件 和 todo-items 的待办内容组件
+
+```html
+Vue.component("todo-title", {
+	props: ['para_title'],  // 参数也不能有大写
+	template: '<div>{{para_title}}</div>'
+});
+Vue.component("todo-items", {
+    props: ['para_item', 'para_index'],
+    template: '<li>{{para_index + 1}}.{{para_item}}</li>'
+});
+```
+
+3-实例化Vue并初始化数据
+
+```html
+var vm = new Vue({
+	el: "#app",
+	data: {
+        title: "待办事项",
+		todoItems: ["Java", "Linux", "前端"]
+	}
+})
+```
+
+4-将这些值通过插槽插入
+
+```html
+<!-- view层 -->
+<div id="app" v-clock>
+
+    <todo>
+        <!--
+            通过slot="todo-title" 确定 todo-title插入到todo的位置
+            : 是 v-bind: 的简写
+
+            :para_title="title"     para_title是组件里的参数，title是vm中的数据
+        -->
+        <todo-title slot="todo-title" :para_title="title"></todo-title>
+        <!-- todoItems是vm中的数据，para_item是组件中的参数 -->
+        <todo-items slot="todo-items" v-for="(item, index) in todoItems" :para_item="item" :para_index="index"></todo-items>
+    </todo>
+
+</div>
+```
+
+说明：我们的 todo-title和todo-items 组件被分发到 todo 的组件  todo-title和todo-items 插槽中。
