@@ -791,11 +791,269 @@ var vm = new Vue({
 
 
 
+## Vue: Webpack学习
+
+### 什么是Webpack
+
+* 本质上，webpack 是一个现代的 Javascript 应用程序的静态模块打包器（module bundler）。当webpack 处理应用程序时，他会递归地构建一个依赖关系图（dependency graph），其中包含程序需要的每个模块，然后将所有的这些模块打包成一个或者多个 bundle。
+* Webpack 是当下最热门的前端资源模块化管理和打包工具，它可以将许多松散耦合的模块按照依赖和规则打包成符合生产环境部署的前端资源。还可以将按需加载的模块进行代码分离，等到实际需要时再异步加载。通过 loader 转化，任何形式的资源都可以当做模块，比如 CommonJS、AMD、ES6、CSS、JSON、CoffeeScript、LESS等；
+* 帮随着移动互联网的大潮，当今越来越多的网站已经从网页模式进化到了 WebApp 模式。它们运行在现代浏览器里，使用HTML5、CSS3、ES6 等新的技术开发丰富的功能，网页已经不仅仅是完成浏览器的基本需求；WebApp 通常是一个SPA（单页面）应用，每一个视图通过异步的方式加载，这导致页面初始化和使用过程中会在家越来越多的 JS 代码，这也给前端的开发流程和资源组织带来了巨大挑战。
+* 前端开发和其他开发工作的主要区别，首先是前端基于多语言、多层次的编码和组织工作，其次前端产品的交付是基于浏览器的，这些资源是通过增量加载的方式运行到浏览器端，如何在开发环境组织好这些碎片化的代码和资源，并且保证他们再浏览器端快速、优雅的加载和更新，就需要一个模块化系统，这个理念中的模块化系统是前端工程师多年以来一直探索的难题。
 
 
 
+### 模块化的演进
+
+* **Script 标签**
+
+  ```html
+  <script src="module1.js"></script>
+  <script src="module2.js"></script>
+  <script src="module3.js"></script>
+  <script src="module4.js"></script>
+  ```
+
+  这是最原始的 JavaScript 文件加载方式，如果把每一个文件看做一个模块，那么他们的接口通常是暴露在全局作用域下，也就是定义在 window 对象中，不同模块的调用都是一个作用域。
+
+  这种原始的加载方式暴露了一些显而易见的弊端：
+
+  * 全局作用域下容易造成变量冲突
+  * 文件只能按照 <script\> 的书写顺序进行加载
+  * 开发人员必须主观解决模块和代码库的依赖关系
+  * 在大型项目中各种资源难以管理，长期积累的问题导致代码库混乱不堪
+
+* **CommonsJS**
+
+  服务端的 NodeJS 遵循 CommonsJS 规范，该规范的核心思想是允许模块通过 require 方法来同步在家所需要依赖的其他模块，然后通过 exports 或 module.exports 来导出需要暴露的接口。
+
+  ```js
+  require("module");
+  require("../module.js");
+  export.doStuff = function() {};
+  module.exports = someValue;
+  ```
+
+  优点：
+
+  * 服务端模块便于重用
+  * NPM 中已经有超过 45 万个可以使用的模块包
+  * 简单易用
+
+  缺点：
+
+  * 同步的模块加载方式不适合在浏览器环境中，同步意味着阻塞加载，浏览器资源是异步加载的
+  * 不能非阻塞的并行加载多个模块
+
+  实现：
+
+  * 服务端的 NodeJS
+  * Browserify，浏览器端的 CommonsJS 实现，可以使用 NPM 的模块，但是编译打包后的文件体积较大
+  * Modules-webmake，类似于 Browserify，但是不如 Browserify 灵活
+  * wreq，Browserify 的前身
+
+* **AMD**
+
+  Asynchronous Module Definition 规范其实主要一个接口 define(id?, dependencies?, factory); 他要在声明模块的时候指定所有的依赖 dependencies，并且还要当做形参传到 factory 中，对于依赖的模块提前执行。
+
+  ```javascript
+  define("module", ["dep1", "dep2"], function(d1, d2) {
+      return someExportedValue;
+  });
+  require(["module", "../file.js"], function(module, file) {});
+  ```
+
+  优点：
+
+  * 适合在浏览器环境中异步加载模块
+  * 可以并行加载多个模块
+
+  缺点：
+
+  * 提高了开发成本，代码阅读和书写比较困难，模块定义方式的语义不畅
+  * 不符合通用的模块化思维方式，是一种妥协的实现
+
+  实现
+
+  * RequireJS
+  * curl
+
+* **CMD**
+
+  Commons Module Definition 规范和 AMD 很相似，尽量保持简单，并于 CommonsJS 和 NodeJS 的 Modules 规范保持了很大的兼容性。
+
+  ```javascript
+  define(function(require, exports, module) {
+      var $ = require("jquery");
+      var Spinning = require("./spinning");
+      exports.doSomething = ...;
+      module.exports = ...;
+  });
+  ```
+
+  优点：
+
+  * 依赖就近，延迟执行
+  * 可以很容易在 NodeJS 中执行
+
+  缺点：
+
+  * 依赖 SPM 打包，模块加载逻辑偏重
+
+  实现：
+
+  * Sea.js
+  * coolie
+
+* **ES6模块**
+
+  EcmaScript6 标准增加了 JavaScript 语言层面的模块体系定义。ES6 模块的设计思想，是尽量静态化，使编译时就能确定模块的依赖关系，以及输入和输出的变量。CommonsJS 和 AMD 模块，都只能在运行时确定这些东西。
+
+  ```javascript
+  import "jquery";
+  export function doStuff() {}
+  module "localModule" {}
+  ```
+
+  优点：
+
+  * 容易进行静态分析
+  * 面向未来的 EcmaScript 标准
+
+  缺点：
+
+  * 原生浏览器还没有实现该标准
+  * 全新的命令，新版的 NodeJS 才支持
+
+  实现：
+
+  * Babel
+
+* **大家期望的模块化系统**
+
+  可以兼容多种模块风格，尽量可以利用已有的代码，不仅仅是 JavaScript 模块化，还有 CSS、图片、字体等资源也需要模块化。
 
 
+
+### 安装Webpack
+
+* Webpack 是一款模块加载兼打包工具，他能把各种资源，如 JS、JSX、ES6、SASS、LESS、图片等都作为模块来处理和使用
+
+* 安装
+
+  ```shell
+  npm install webpack -g
+  npm install webpack-cli -g
+  ```
+
+  测试安装成功
+
+  ```shell
+  webpack -v
+  webpack-cli -v
+  ```
+
+  ![image-20201206111628710](README.assets/image-20201206111628710.png)
+
+* 配置
+
+  创建 webpack.config.js 配置文件
+
+  * entry：入口文件，指定 Webpack 用哪个文件作为项目的入口
+  * output：输出，指定Webpack 把处理完成的文件放置到指定路径
+  * module：模块，用于处理各种类型的文件
+  * plugins：插件，如热更新、代码重用等
+  * resolve：设置路径指向
+  * watch：监听，用于设置文件改动后直接打包
+
+  ```js
+  module.exports = {
+      entry: './modules/main.js',
+      output: {
+          path: "",
+          filename: ""
+      },
+      module: {
+          loaders: [
+              {test: /\.js$/, loader: ""}
+          ]
+      },
+      plugins: {},
+      resolve: {},
+      watch: true
+  };
+  ```
+
+
+
+### 使用 Webpack
+
+1. 创建项目（vue-02下创建webpack-study文件夹）
+
+2. 在项目中创建一个名为 modules 的目录，用于放置 JS 模块等资源文件
+
+3. 在 modules 下创建文件，如 hello.js，用于编写 JS 模块相关代码
+
+   ```js
+   'use strict';
+   
+   // 暴露方法
+   exports.sayHi = function () {
+       document.write("<h1>Hi ES6!</h1>")
+   };
+   exports.sayHello = function () {
+       document.write("<h1>Hello ES6!</h1>")
+   };
+   ```
+
+4. 在modules下创建一个名为 main.js 的入口文件，用于打包时设置 entry 属性
+
+   ```js
+   'use strict';
+   
+   // require 导入一个模块，就可以调用这个模块中的方法了
+   var obj = require("./hello");
+   obj.sayHi();
+   ```
+
+5. 在项目目录下创建 webpack.config.js 配置文件，在当前项目文件夹下使用 webpack 命令打包
+
+   ```js
+   'use strict';
+   
+   module.exports = {
+       entry: './modules/main.js',
+       output: {
+           filename: "./js/bundle.js"
+       }
+   };
+   ```
+
+6. 在项目目录下创建 html 页面， 如 index.html，导入 Webpack 打包后的 JS 文件
+
+   ```html
+   <!DOCTYPE html>
+   <html lang="en">
+   <head>
+       <meta charset="UTF-8">
+       <title>Webpack学习</title>
+   </head>
+   <body>
+   
+   <!-- 前端的模块化开发 -->
+   <script src="dist/js/bundle.js"></script>
+   
+   </body>
+   </html>
+   ```
+
+7. 运行html查看效果
+
+**说明：**
+
+```shell
+# 参数 --watch 用于监听变化
+webpack --watch
+```
 
 
 

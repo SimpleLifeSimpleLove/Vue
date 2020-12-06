@@ -1,0 +1,1 @@
+(()=>{"use strict";var t={645:(t,e)=>{e.sayHi=function(){document.write("<h1>Hi ES6!</h1>")},e.sayHello=function(){document.write("<h1>Hello ES6!</h1>")}}},e={};(function r(o){if(e[o])return e[o].exports;var i=e[o]={exports:{}};return t[o](i,i.exports,r),i.exports})(645).sayHi()})();
